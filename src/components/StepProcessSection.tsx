@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 interface StepProcessSectionProps {
   onSelectStep: (tab: "analytics" | "scheduler" | "pipeline") => void;
@@ -12,73 +12,83 @@ export const StepProcessSection: React.FC<StepProcessSectionProps> = ({ onSelect
     {
       stepNumber: "01",
       name: "Audit",
-      title: "Isolate 3.0s Drop-off Cause",
+      title: "Find what's leaking retention",
       description:
-        "Evaluate viewer swipe-away spikes against the 60% viral benchmark to detect weak pattern interrupts and friction in the initial 1.5s.",
+        "Deep scan of your 3-second retention drop-off curve against the 60% viral benchmark to pinpoint the exact millisecond viewers scroll away.",
       timeframe: "Instant Telemetry",
+      actionLabel: "Launch Forensic Audit",
       targetTab: "analytics" as const,
     },
     {
       stepNumber: "02",
-      name: "Synthesize",
-      title: "Groq LPU Hook Generation",
+      name: "Strategy",
+      title: "Custom Groq AI hooks, zero templates",
       description:
-        "Generate 3 high-converting hook variants (Curiosity Gap, Contrarian, Problem) and recalibrate persona speech delivery to 185 WPM.",
+        "Groq LPU synthesizes 3 pattern-interrupt opening lines (Curiosity Gap, Contrarian, Problem) in ~250ms and recalibrates verbal delivery pacing to 185 WPM.",
       timeframe: "~250ms LPU",
+      actionLabel: "Calibrate Persona & Hook",
       targetTab: "scheduler" as const,
     },
     {
       stepNumber: "03",
-      name: "Dispatch",
-      title: "5-Stage Synthesis Execution",
+      name: "Launch",
+      title: "Deploy with multi-channel monitoring",
       description:
-        "Trigger deterministic pipeline validation, master kinetic subtitles, and stage automated distribution to TikTok, Reels, and Shorts.",
+        "Automated 5-stage synthesis DAG validates platform constraints, master-renders audio, and stages content for TikTok, Reels, and Shorts.",
       timeframe: "Deterministic DAG",
+      actionLabel: "Monitor Pipeline Queue",
       targetTab: "pipeline" as const,
     },
   ];
 
   return (
-    <section className="py-14 border-t border-white/[0.08]">
+    <section className="py-16 md:py-24 border-t border-white/[0.08] bg-[#060911]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl mb-8">
-          <div className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider mb-1.5">
-            Operational Workflow
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center space-x-2 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">
+            <span>The Compounding Workflow</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
-            From retention forensics to multi-channel deployment.
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
+            From zero to <span className="text-gradient-animated">scaling in clicks.</span>
           </h2>
+          <p className="text-sm text-slate-300 mt-2 font-sans">
+            A battle-tested 3-step framework designed to eliminate guesswork and turn short-form video into predictable audience acquisition.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map((s) => (
             <div
               key={s.stepNumber}
               onClick={() => onSelectStep(s.targetTab)}
-              className="linear-card group cursor-pointer rounded-xl p-5 flex flex-col justify-between"
+              className="growth-card group cursor-pointer rounded-3xl p-7 flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono text-xs font-semibold text-white">
-                    {s.stepNumber} — {s.name}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-mono text-3xl font-black text-indigo-400 group-hover:text-indigo-300 group-hover:scale-105 transition-all">
+                    {s.stepNumber}
                   </span>
-                  <span className="rounded border border-white/[0.08] bg-white/[0.02] px-2 py-0.5 text-[10px] font-mono text-neutral-400">
+                  <span className="rounded-full border border-white/[0.1] bg-[#060911] px-2.5 py-0.5 text-[10px] font-mono font-bold text-slate-400 uppercase group-hover:border-indigo-500/40 transition-colors">
                     {s.timeframe}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-semibold text-white mb-1.5 group-hover:text-neutral-200 transition-colors">
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                  {s.stepNumber} — {s.name}
+                </div>
+
+                <h3 className="text-lg font-bold text-white mb-2.5 group-hover:text-indigo-300 transition-colors">
                   {s.title}
                 </h3>
 
-                <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+                <p className="text-xs text-slate-300 leading-relaxed font-sans mb-6">
                   {s.description}
                 </p>
               </div>
 
-              <div className="pt-3 mt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
-                <span className="text-[11px] text-neutral-400 font-mono">Launch Step</span>
-                <ArrowRight className="h-3.5 w-3.5 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-indigo-400 font-bold uppercase tracking-wider group-hover:text-indigo-300">
+                <span>{s.actionLabel}</span>
+                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
               </div>
             </div>
           ))}
