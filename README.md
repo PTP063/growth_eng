@@ -279,18 +279,7 @@ Deploy instantly to Vercel with zero configuration:
 
 ---
 
-## 🛡️ Engineering Defense Document
 
-Before pitching to founders or tech leads, review the exhaustive 4-part defense guide:  
-👉 **[`OSYNTH_ENGINEERING_DEFENSE.md`](./OSYNTH_ENGINEERING_DEFENSE.md)**
-
-It covers:
-- **End-to-End Architectural Deep-Dive:** Schema contracts, edge handlers, and atomic state.
-- **Edge Cases & Hardening:** LLM JSON repair, Redis Redlock idempotency, and OAuth2 token refresh queues.
-- **Scale & Latency:** SSE streaming, optimistic UI rollbacks, and Kahn's algorithm for DAG cycle prevention.
-- **15 Grilling Interview Questions & Senior Model Answers.**
-
----
 
 ## 🛠️ Technology Stack
 
