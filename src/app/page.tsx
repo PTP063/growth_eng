@@ -267,17 +267,22 @@ export default function GrowthEngineApp() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-slate-850 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>
-            Osynth Growth Engine — High-Density Creator Intelligence & UGC Pipeline
+      <footer className="border-t border-white/[0.08] bg-[#060911] py-8 text-center text-xs text-slate-500 mt-12">
+        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-left">
+            <div className="font-extrabold text-white uppercase tracking-wider text-xs">
+              THE GROWTH ENGINE
+            </div>
+            <div className="text-[11px] text-slate-400 mt-0.5 font-sans">
+              AI-engineered performance marketing — turns strangers into compounding viral growth.
+            </div>
           </div>
-          <div className="flex items-center space-x-3 text-slate-400 font-mono text-[11px]">
+          <div className="flex items-center space-x-3 text-slate-400 font-mono text-[10px] uppercase tracking-wider">
             <span>Next.js 14 App Router</span>
             <span>•</span>
-            <span>xAI Grok Architecture</span>
+            <span>Grok xAI Engine</span>
             <span>•</span>
-            <span>Zero DB Micro-App</span>
+            <span>Vercel Edge</span>
           </div>
         </div>
       </footer>
