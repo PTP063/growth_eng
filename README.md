@@ -4,18 +4,18 @@
 
 ### *Autonomous AI-Native Creator Growth & Next-Best-Action Operations Hub*
 
+[![Live on Vercel](https://img.shields.io/badge/Production-Live%20on%20Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://growthengine-three.vercel.app)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2.35-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Grok xAI](https://img.shields.io/badge/AI_Engine-Grok--2_xAI-4F46E5?style=for-the-badge&logo=openai&logoColor=white)](https://x.ai/)
-[![Vercel Ready](https://img.shields.io/badge/Deployment-Vercel_Ready-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](LICENSE)
 
 <p align="center">
   <b>Osynth Growth Engine</b> connects short-form UGC synthesis to cross-platform publishing and an automated, cognitive <b>"Performance to Next-Best-Action"</b> recommendation engine powered by <b>xAI Grok-2</b>.
 </p>
 
-[✨ Live Demo](#-getting-started) • [🚀 Deploy on Vercel](#-deployment) • [🛡️ Engineering Defense Doc](./OSYNTH_ENGINEERING_DEFENSE.md) • [📊 Architecture](#-architecture-overview)
+[✨ Live Production Demo](https://growthengine-three.vercel.app) • [🚀 Deploy on Vercel](#-deployment-to-vercel) • [🛡️ Engineering Defense Doc](./OSYNTH_ENGINEERING_DEFENSE.md) • [📊 Architecture](#-architecture-overview)
 
 ---
 
@@ -43,40 +43,101 @@
 
 ## 🏗️ Architecture Overview
 
+### End-to-End System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["🖥️ Next.js 14 Client Layer (React 18 Concurrent)"]
+        UI_Analytics["📊 Analytics Dashboard\n(Viewer Retention SVG Curve & 3s Forensics)"]
+        UI_Scheduler["📅 Multi-Channel Scheduler\n(Persona Configurator & 9:16 UGC Preview)"]
+        UI_Pipeline["⚙️ Pipeline Monitor\n(Topological DAG Stepper & Live Logs)"]
+    end
+
+    subgraph Serverless["⚡ Serverless Edge & Node.js Route Handlers"]
+        API_Action["POST /api/analytics/next-best-action\n(Zod Schema & Context Sanitization)"]
+        API_Schedule["POST /api/schedule/validate\n(Platform Policy Check & Deterministic Job Engine)"]
+    end
+
+    subgraph Intelligence["🧠 Grok xAI Cognitive Engine"]
+        Grok_API["xAI API (grok-2-latest / grok-beta)\nwith Strict JSON Structured Mode"]
+        Fallback["🛡️ Zero-Downtime Deterministic\nHeuristics Fallback Simulator"]
+    end
+
+    subgraph PipelineDAG["🚀 Synthesis & Dispatch Execution Graph"]
+        Stage1["01: Payload Validation & Contract Check"]
+        Stage2["02: UGC Prompt & Framing Synthesis"]
+        Stage3["03: Voice & 4K Avatar Render Engine"]
+        Stage4["04: Kinetic Subtitles & Audio FX Mastering"]
+        Stage5["05: Multi-Channel Dispatch (TikTok / IG / YT)"]
+    end
+
+    UI_Analytics -->|"HTTP POST (Telemetry Payload)"| API_Action
+    UI_Scheduler -->|"HTTP POST (Scheduler Payload)"| API_Schedule
+
+    API_Action --> Grok_API
+    Grok_API -.->|"On Failure / Timeout"| Fallback
+    Grok_API -->|"Structured NextBestActionResponse"| UI_Analytics
+    Fallback -->|"Heuristic Diagnosis"| UI_Analytics
+
+    API_Schedule -->|"Generates Job ID & DAG"| Stage1
+    Stage1 --> Stage2
+    Stage2 --> Stage3
+    Stage3 --> Stage4
+    Stage4 --> Stage5
+    Stage5 -->|"Streams Execution Progress"| UI_Pipeline
+
+    UI_Analytics -->|"1-Click Apply Hook & Calibrate Persona"| UI_Scheduler
 ```
-+-------------------------------------------------------------------------------------------------------+
-|                                        OSYNTH CLIENT LAYER                                           |
-|                                                                                                       |
-|  [Next.js App Router: React 18 Concurrent Root]                                                       |
-|  - AnalyticsDashboard (Viewer Retention SVG Curves, 3s Drop-off Forensics, KPI Tiles)                 |
-|  - MultiChannelScheduler (AI Persona Configurator, 9:16 UGC Live Synthesis Mockup, Platform Matrix)   |
-|  - PipelineVisualizer (Topological DAG Stage Stepper, Real-Time Progress Stream, Execution Logs)     |
-+------------------------------------+------------------------------------+-----------------------------+
-                                     |                                    |
-            HTTP POST /api/analytics/next-best-action      HTTP POST /api/schedule/validate
-                                     |                                    |
-+------------------------------------v------------------------------------v-----------------------------+
-|                                 SERVERLESS EDGE / NODE ROUTE HANDLERS                                 |
-|                                                                                                       |
-|  [Schema Enforcement Layer: Zod Runtime Contracts]                                                   |
-|  - Strict boundary validation against `analyticsAnalyzeSchema` & `scheduleValidateSchema`             |
-|  - Platform constraint checkers (TikTok 9:16, YouTube 100-char title limit, IG 30-tag policy)        |
-+------------------------------------+------------------------------------+-----------------------------+
-                                     |                                    |
-                                     |                                    v
-                                     |                     [Deterministic Job Engine]
-                                     |                     - Deterministic Job ID Generator
-                                     |                     - 5-Stage Synthesis DAG State Graph
-                                     |                     - Returns `ScheduleValidateResponse`
-                                     v                                    |
-+-------------------------------------------------------------------------v-----------------------------+
-|                                     AI REASONING & INFERENCE ENGINE                                    |
-|                                                                                                       |
-|  [Grok-2 / Claude Provider Engine]                                                                    |
-|  - System Prompt with Strict JSON Schema Instruction (`response_format: { type: "json_object" }`)     |
-|  - Multi-Stage JSON Sanitizer (Markdown fence stripping + bracket slice + trailing comma repair)      |
-|  - Zero-Downtime Deterministic Heuristics Fallback Engine                                             |
-+-------------------------------------------------------------------------------------------------------+
+
+---
+
+### Closed-Loop Creator Operations Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Creator as 👤 Creator / Growth Lead
+    participant Dashboard as 📊 Analytics Dashboard
+    participant API as ⚡ Next.js Route Handler
+    participant Grok as 🧠 Grok xAI Inference Engine
+    participant Scheduler as 📅 Multi-Channel Scheduler
+    participant Pipeline as ⚙️ DAG Execution Worker
+
+    Creator->>Dashboard: Selects underperforming asset (e.g. 36.2% 3s Retention)
+    Creator->>Dashboard: Clicks "Run Grok Performance Audit"
+    Dashboard->>API: POST /api/analytics/next-best-action (telemetry + retention curve)
+    API->>Grok: Enforces System Prompt & JSON Schema Contract
+    Grok-->>API: Returns Bottleneck Diagnosis + 3 Hooks + Persona WPM Tweaks
+    API-->>Dashboard: Hydrates Next-Best-Action Card
+    Creator->>Dashboard: Clicks "Apply Hook & Calibrate Persona"
+    Dashboard->>Scheduler: Injects new hook & syncs WPM cadence to 185 WPM
+    Scheduler->>Scheduler: Renders 9:16 live mobile phone synthesis preview
+    Creator->>Scheduler: Clicks "Validate & Schedule Pipeline Job"
+    Scheduler->>API: POST /api/schedule/validate (TikTok, Reels, Shorts)
+    API->>Pipeline: Enqueues 5-stage synthesis job with deterministic ID
+    Pipeline-->>Dashboard: Streams real-time render telemetry to Pipeline Monitor
+```
+
+---
+
+### 5-Stage Synthesis DAG Execution Flow
+
+```mermaid
+graph LR
+    A["01: Schema Contract\n& Policy Check (100%)"] --> B["02: Diffusion Prompt\n& Pacing Synthesis (25%)"]
+    B --> C["03: Voice Synthesis\n& 4K Avatar Sync (0%)"]
+    C --> D["04: Kinetic Captions\n& Sound Drops (0%)"]
+    D --> E1["05A: TikTok FYP\n(9:16 Video)"]
+    D --> E2["05B: Instagram Reels\n(9:16 Video)"]
+    D --> E3["05C: YouTube Shorts\n(9:16 Video)"]
+
+    classDef done fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef inprog fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#fff;
+    classDef queue fill:#0f172a,stroke:#334155,stroke-width:1px,color:#94a3b8;
+
+    class A done;
+    class B inprog;
+    class C,D,E1,E2,E3 queue;
 ```
 
 ---
@@ -204,6 +265,32 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
+## 🚢 Deployment to Vercel
+
+Deploy instantly to Vercel with zero configuration:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPTP063%2Fgrowth_eng)
+
+### Manual Deployment:
+1. Go to **[vercel.com/new](https://vercel.com/new)**.
+2. Select and import **`PTP063/growth_eng`**.
+3. Add `XAI_API_KEY` under **Environment Variables** *(optional)*.
+4. Click **Deploy**.
+
+---
+
+## 🛡️ Engineering Defense Document
+
+Before pitching to founders or tech leads, review the exhaustive 4-part defense guide:  
+👉 **[`OSYNTH_ENGINEERING_DEFENSE.md`](./OSYNTH_ENGINEERING_DEFENSE.md)**
+
+It covers:
+- **End-to-End Architectural Deep-Dive:** Schema contracts, edge handlers, and atomic state.
+- **Edge Cases & Hardening:** LLM JSON repair, Redis Redlock idempotency, and OAuth2 token refresh queues.
+- **Scale & Latency:** SSE streaming, optimistic UI rollbacks, and Kahn's algorithm for DAG cycle prevention.
+- **15 Grilling Interview Questions & Senior Model Answers.**
+
+---
 
 ## 🛠️ Technology Stack
 
@@ -211,9 +298,10 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 | :--- | :--- | :--- |
 | **Framework** | [Next.js 14](https://nextjs.org/) (App Router) | High-performance React framework with serverless edge handlers |
 | **Language** | [TypeScript 5](https://www.typescriptlang.org/) | Strict end-to-end type safety |
-| **Styling** | [Tailwind CSS 3](https://tailwindcss.com/) | Dark mode design system (`Slate-950`, `Indigo-600`, `Emerald-400`) |
+| **Styling** | [Tailwind CSS 3](https://tailwindcss.com/) | Design system inspired by [thegrowthengine.net](https://thegrowthengine.net/) |
 | **AI Reasoning** | [xAI Grok-2](https://x.ai/) | LLM performance diagnosis & high-converting hook generation |
 | **Validation** | [Zod](https://zod.dev/) | Edge runtime contract enforcement |
+| **Diagrams** | [Mermaid.js](https://mermaid.js.org/) | Visual system architecture & sequence graphs |
 | **Icons** | [Lucide React](https://lucide.dev/) | Modern, lightweight UI iconography |
 | **Hosting** | [Vercel](https://vercel.com/) | Edge deployment with automatic CI/CD |
 
