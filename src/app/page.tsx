@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
+import { HeroSection } from "@/components/HeroSection";
+import { FeaturesGrid } from "@/components/FeaturesGrid";
+import { StepProcessSection } from "@/components/StepProcessSection";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { MultiChannelScheduler } from "@/components/MultiChannelScheduler";
 import { PipelineVisualizer } from "@/components/PipelineVisualizer";
+import { CallToActionFooter } from "@/components/CallToActionFooter";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { samplePosts, initialPersonas, sampleInitialJobs } from "@/lib/mockData";
 import {
@@ -44,6 +48,14 @@ export default function GrowthEngineApp() {
 
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Reference to scroll to interactive engine
+  const engineRef = useRef<HTMLDivElement>(null);
+
+  const scrollToEngine = (tab?: "analytics" | "scheduler" | "pipeline") => {
+    if (tab) setActiveTab(tab);
+    engineRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Form Payload State for Scheduler
   const [formPayload, setFormPayload] = useState<SchedulerPayload>({
@@ -129,6 +141,7 @@ export default function GrowthEngineApp() {
     setAppliedFromGrok(true);
     showToast(`⚡ Hook applied: "${hook.headline}". Transferred to Scheduler!`);
     setActiveTab("scheduler");
+    scrollToEngine("scheduler");
   };
 
   // Apply Persona Calibrations
@@ -162,7 +175,6 @@ export default function GrowthEngineApp() {
       setLastValidationResult(data);
 
       if (data.valid) {
-        // Create new pipeline job
         const newJob: ScheduledJob = {
           jobId: data.jobId,
           payload: payload,
@@ -175,10 +187,10 @@ export default function GrowthEngineApp() {
         setJobs((prev) => [newJob, ...prev]);
         showToast(`🚀 Pipeline Job ${data.jobId} staged successfully!`);
 
-        // Automatically switch to pipeline monitor to view progress
         setTimeout(() => {
           setActiveTab("pipeline");
-        }, 1200);
+          scrollToEngine("pipeline");
+        }, 1000);
       } else {
         showToast("⚠️ Validation rejected. Please resolve platform policy errors.");
       }
@@ -194,64 +206,143 @@ export default function GrowthEngineApp() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col selection:bg-indigo-600 selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 rounded-2xl border border-indigo-500/40 bg-slate-900/95 px-4 py-3 text-xs font-semibold text-white shadow-2xl shadow-indigo-950 backdrop-blur-md animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 rounded-2xl border border-indigo-500/40 bg-[#0D111A]/95 px-4 py-3 text-xs font-bold text-white shadow-2xl shadow-indigo-950 backdrop-blur-md animate-bounce">
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Top Navigation */}
+      {/* Top Navigation Bar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          scrollToEngine(tab);
+        }}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         hasCustomKey={Boolean(apiKey && apiKey.length > 5)}
         grokModel={grokModel}
         activeJobsCount={jobs.filter((j) => j.status === "PROCESSING" || j.status === "QUEUED").length}
       />
 
-      {/* Main Content Body */}
-      <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {activeTab === "analytics" && (
-          <AnalyticsDashboard
-            posts={posts}
-            selectedPost={selectedPost}
-            onSelectPost={(p) => {
-              setSelectedPost(p);
-              // if not yet diagnosed, optionally trigger or let user click
-            }}
-            diagnosis={diagnosisMap[selectedPost.id] || null}
-            isLoadingDiagnosis={isLoadingDiagnosis}
-            onRunDiagnosis={handleRunDiagnosis}
-            onApplyHook={handleApplyHook}
-            onApplyPersonaAdjustments={handleApplyPersonaAdjustments}
-            grokModel={grokModel}
-          />
-        )}
+      {/* Section 1: Hero Section (The Growth Engine Design) */}
+      <HeroSection
+        onExploreEngine={() => scrollToEngine("analytics")}
+        onRunAudit={() => {
+          scrollToEngine("analytics");
+          handleRunDiagnosis(selectedPost);
+        }}
+      />
 
-        {activeTab === "scheduler" && (
-          <MultiChannelScheduler
-            personas={personas}
-            selectedPersona={selectedPersona}
-            onSelectPersona={setSelectedPersona}
-            formPayload={formPayload}
-            setFormPayload={setFormPayload}
-            onScheduleSubmit={handleScheduleSubmit}
-            isSubmitting={isSubmittingSchedule}
-            lastValidationResult={lastValidationResult}
-            appliedFromGrok={appliedFromGrok}
-          />
-        )}
+      {/* Section 2: 4-Pillar Features Grid */}
+      <FeaturesGrid
+        onSelectFeature={(tab) => {
+          setActiveTab(tab);
+          scrollToEngine(tab);
+        }}
+      />
 
-        {activeTab === "pipeline" && (
-          <PipelineVisualizer
-            jobs={jobs}
-            onRefresh={() => showToast("🔄 Pipeline execution queue refreshed")}
-          />
-        )}
-      </main>
+      {/* Section 3: 3-Step Process Section */}
+      <StepProcessSection
+        onSelectStep={(tab) => {
+          setActiveTab(tab);
+          scrollToEngine(tab);
+        }}
+      />
+
+      {/* Section 4: Interactive Command Center / Live Engine */}
+      <div id="engine" ref={engineRef} className="py-16 md:py-24 border-t border-white/[0.08] bg-[#060911]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header with Navigation Pills */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div>
+              <div className="text-xs font-mono font-bold text-indigo-400 uppercase tracking-widest mb-1">
+                // COMMAND CENTER WORKSPACE
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
+                Live AI Growth Engine
+              </h2>
+            </div>
+
+            {/* Quick Engine Tabs */}
+            <div className="flex items-center rounded-2xl border border-white/[0.08] bg-[#0D111A] p-1.5 backdrop-blur-md">
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "analytics"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                01 — Analytics
+              </button>
+              <button
+                onClick={() => setActiveTab("scheduler")}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "scheduler"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                02 — Scheduler
+              </button>
+              <button
+                onClick={() => setActiveTab("pipeline")}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "pipeline"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                03 — Pipeline ({jobs.length})
+              </button>
+            </div>
+          </div>
+
+          {/* Tab 1: Performance Analytics */}
+          {activeTab === "analytics" && (
+            <AnalyticsDashboard
+              posts={posts}
+              selectedPost={selectedPost}
+              onSelectPost={(p) => setSelectedPost(p)}
+              diagnosis={diagnosisMap[selectedPost.id] || null}
+              isLoadingDiagnosis={isLoadingDiagnosis}
+              onRunDiagnosis={handleRunDiagnosis}
+              onApplyHook={handleApplyHook}
+              onApplyPersonaAdjustments={handleApplyPersonaAdjustments}
+              grokModel={grokModel}
+            />
+          )}
+
+          {/* Tab 2: Multi-Channel Scheduler */}
+          {activeTab === "scheduler" && (
+            <MultiChannelScheduler
+              personas={personas}
+              selectedPersona={selectedPersona}
+              onSelectPersona={setSelectedPersona}
+              formPayload={formPayload}
+              setFormPayload={setFormPayload}
+              onScheduleSubmit={handleScheduleSubmit}
+              isSubmitting={isSubmittingSchedule}
+              lastValidationResult={lastValidationResult}
+              appliedFromGrok={appliedFromGrok}
+            />
+          )}
+
+          {/* Tab 3: Pipeline Execution Monitor */}
+          {activeTab === "pipeline" && (
+            <PipelineVisualizer
+              jobs={jobs}
+              onRefresh={() => showToast("🔄 Pipeline execution queue refreshed")}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Section 5: Call to Action & Footer */}
+      <CallToActionFooter onGetStarted={() => scrollToEngine("analytics")} />
 
       {/* API Key Modal */}
       <ApiKeyModal
@@ -265,27 +356,6 @@ export default function GrowthEngineApp() {
         }}
         currentModel={grokModel}
       />
-
-      {/* Footer */}
-      <footer className="border-t border-white/[0.08] bg-[#060911] py-8 text-center text-xs text-slate-500 mt-12">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-left">
-            <div className="font-extrabold text-white uppercase tracking-wider text-xs">
-              THE GROWTH ENGINE
-            </div>
-            <div className="text-[11px] text-slate-400 mt-0.5 font-sans">
-              AI-engineered performance marketing — turns strangers into compounding viral growth.
-            </div>
-          </div>
-          <div className="flex items-center space-x-3 text-slate-400 font-mono text-[10px] uppercase tracking-wider">
-            <span>Next.js 14 App Router</span>
-            <span>•</span>
-            <span>Grok xAI Engine</span>
-            <span>•</span>
-            <span>Vercel Edge</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
