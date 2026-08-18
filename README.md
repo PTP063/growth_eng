@@ -99,15 +99,9 @@ Live URL: **[https://growthengine-three.vercel.app](https://growthengine-three.v
 
 ---
 
-## 🛡️ Technical Review & Pitch Defense
-
-For an in-depth technical deep-dive and founder interview prep:  
-👉 Read the **[`OSYNTH_ENGINEERING_DEFENSE.md`](./OSYNTH_ENGINEERING_DEFENSE.md)** (includes architecture, error hardening, and 15 grilling Q&As).
-
----
 
 <div align="center">
 
-Made with ⚡ by the **Osynth Engineering Team**
+Made with ⚡ by the Prateek
 
 </div>
