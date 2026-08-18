@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturesGrid } from "@/components/FeaturesGrid";
@@ -41,10 +41,10 @@ export default function GrowthEngineApp() {
   // Pipeline Jobs
   const [jobs, setJobs] = useState<ScheduledJob[]>(sampleInitialJobs);
 
-  // Grok API Key and Model Settings
+  // Groq API Key and Model Settings (Default: llama-3.3-70b-versatile)
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
-  const [grokModel, setGrokModel] = useState("grok-2-latest");
+  const [groqModel, setGroqModel] = useState("llama-3.3-70b-versatile");
 
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -56,6 +56,22 @@ export default function GrowthEngineApp() {
     if (tab) setActiveTab(tab);
     engineRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Keyboard shortcut listener for developer feel (⌘K, ⌘Enter)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsApiKeyModalOpen((prev) => !prev);
+      } else if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRunDiagnosis(selectedPost);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPost, apiKey, groqModel]);
 
   // Form Payload State for Scheduler
   const [formPayload, setFormPayload] = useState<SchedulerPayload>({
@@ -87,7 +103,7 @@ export default function GrowthEngineApp() {
     }, 4000);
   };
 
-  // Run Next-Best-Action Diagnosis via Grok API
+  // Run Next-Best-Action Diagnosis via Groq LPU API
   const handleRunDiagnosis = async (post: PostPerformance) => {
     setIsLoadingDiagnosis(true);
     try {
@@ -95,8 +111,8 @@ export default function GrowthEngineApp() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { "x-grok-api-key": apiKey } : {}),
-          "x-grok-model": grokModel,
+          ...(apiKey ? { "x-groq-api-key": apiKey } : {}),
+          "x-groq-model": groqModel,
         },
         body: JSON.stringify({
           postId: post.id,
@@ -112,7 +128,7 @@ export default function GrowthEngineApp() {
           personaSettings: post.personaSettings,
           retentionCurve: post.retentionCurve,
           apiKey: apiKey || undefined,
-          model: grokModel,
+          model: groqModel,
         }),
       });
 
@@ -122,10 +138,10 @@ export default function GrowthEngineApp() {
 
       const data: NextBestActionResponse = await response.json();
       setDiagnosisMap((prev) => ({ ...prev, [post.id]: data }));
-      showToast("✨ Grok Next-Best-Action Diagnosis generated successfully!");
+      showToast("✨ Groq LPU Next-Best-Action Diagnosis generated!");
     } catch (err: unknown) {
       console.error("Diagnosis error:", err);
-      showToast("⚠️ Could not reach live Grok endpoint; switched to fallback diagnosis.");
+      showToast("⚠️ Could not reach live Groq endpoint; switched to fallback diagnosis.");
     } finally {
       setIsLoadingDiagnosis(false);
     }
@@ -206,10 +222,10 @@ export default function GrowthEngineApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#0a0a0c] text-neutral-100 flex flex-col selection:bg-white selection:text-black">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 rounded-2xl border border-indigo-500/40 bg-[#0D111A]/95 px-4 py-3 text-xs font-bold text-white shadow-2xl shadow-indigo-950 backdrop-blur-md animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 rounded-xl border border-white/[0.12] bg-[#111115]/95 px-4 py-2.5 text-xs font-mono text-white shadow-2xl backdrop-blur-md animate-fade-in">
           <span>{toastMessage}</span>
         </div>
       )}
@@ -223,11 +239,11 @@ export default function GrowthEngineApp() {
         }}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         hasCustomKey={Boolean(apiKey && apiKey.length > 5)}
-        grokModel={grokModel}
+        grokModel={groqModel}
         activeJobsCount={jobs.filter((j) => j.status === "PROCESSING" || j.status === "QUEUED").length}
       />
 
-      {/* Section 1: Hero Section (The Growth Engine Design) */}
+      {/* Section 1: Hero Section */}
       <HeroSection
         onExploreEngine={() => scrollToEngine("analytics")}
         onRunAudit={() => {
@@ -252,51 +268,51 @@ export default function GrowthEngineApp() {
         }}
       />
 
-      {/* Section 4: Interactive Command Center / Live Engine */}
-      <div id="engine" ref={engineRef} className="py-16 md:py-24 border-t border-white/[0.08] bg-[#060911]">
+      {/* Section 4: Interactive Command Console / Live Engine */}
+      <div id="engine" ref={engineRef} className="py-14 border-t border-white/[0.08] bg-[#0a0a0c]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header with Navigation Pills */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          {/* Section Header with Segmented Navigation Control */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
-              <div className="text-xs font-mono font-bold text-indigo-400 uppercase tracking-widest mb-1">
-                // COMMAND CENTER WORKSPACE
+              <div className="text-[11px] font-mono text-neutral-500 uppercase tracking-wider mb-1">
+                // Command Workspace
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
-                Live AI Growth Engine
+              <h2 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
+                Live Creator Operations Hub
               </h2>
             </div>
 
-            {/* Quick Engine Tabs */}
-            <div className="flex items-center rounded-2xl border border-white/[0.08] bg-[#0D111A] p-1.5 backdrop-blur-md">
+            {/* Segmented Tab Switcher */}
+            <div className="flex items-center rounded-lg border border-white/[0.08] bg-[#111114] p-0.5">
               <button
                 onClick={() => setActiveTab("analytics")}
-                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`rounded-md px-3 py-1 text-xs font-medium transition-all ${
                   activeTab === "analytics"
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white/[0.08] text-white shadow-sm"
+                    : "text-neutral-400 hover:text-neutral-200"
                 }`}
               >
-                01 — Analytics
+                01 Analytics
               </button>
               <button
                 onClick={() => setActiveTab("scheduler")}
-                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`rounded-md px-3 py-1 text-xs font-medium transition-all ${
                   activeTab === "scheduler"
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white/[0.08] text-white shadow-sm"
+                    : "text-neutral-400 hover:text-neutral-200"
                 }`}
               >
-                02 — Scheduler
+                02 Scheduler
               </button>
               <button
                 onClick={() => setActiveTab("pipeline")}
-                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`rounded-md px-3 py-1 text-xs font-medium transition-all ${
                   activeTab === "pipeline"
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white/[0.08] text-white shadow-sm"
+                    : "text-neutral-400 hover:text-neutral-200"
                 }`}
               >
-                03 — Pipeline ({jobs.length})
+                03 Pipeline ({jobs.length})
               </button>
             </div>
           </div>
@@ -312,7 +328,7 @@ export default function GrowthEngineApp() {
               onRunDiagnosis={handleRunDiagnosis}
               onApplyHook={handleApplyHook}
               onApplyPersonaAdjustments={handleApplyPersonaAdjustments}
-              grokModel={grokModel}
+              grokModel={groqModel}
             />
           )}
 
@@ -335,7 +351,7 @@ export default function GrowthEngineApp() {
           {activeTab === "pipeline" && (
             <PipelineVisualizer
               jobs={jobs}
-              onRefresh={() => showToast("🔄 Pipeline execution queue refreshed")}
+              onRefresh={() => showToast("🔄 Pipeline queue refreshed")}
             />
           )}
         </div>
@@ -344,17 +360,17 @@ export default function GrowthEngineApp() {
       {/* Section 5: Call to Action & Footer */}
       <CallToActionFooter onGetStarted={() => scrollToEngine("analytics")} />
 
-      {/* API Key Modal */}
+      {/* Groq Cloud API Key Modal */}
       <ApiKeyModal
         isOpen={isApiKeyModalOpen}
         onClose={() => setIsApiKeyModalOpen(false)}
         apiKey={apiKey}
         onSaveApiKey={(key, model) => {
           setApiKey(key);
-          setGrokModel(model);
-          showToast(`⚡ Model set to ${model}${key ? " with live xAI key" : " (Simulation mode)"}`);
+          setGroqModel(model);
+          showToast(`⚡ Model set to ${model}${key ? " with live Groq LPU key" : " (Simulator Mode)"}`);
         }}
-        currentModel={grokModel}
+        currentModel={groqModel}
       />
     </div>
   );

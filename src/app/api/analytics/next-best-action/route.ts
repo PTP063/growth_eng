@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyticsAnalyzeSchema } from "@/lib/validation";
-import { analyzePerformanceWithGrok } from "@/lib/grokClient";
+import { analyzePerformanceWithGroq } from "@/lib/grokClient";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -9,9 +9,15 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Check optional header or body API key / model override
-    const userApiKey = req.headers.get("x-grok-api-key") || body.apiKey;
-    const customModel = req.headers.get("x-grok-model") || body.model;
+    // Check optional header or body API key / model override (supporting Groq and legacy headers)
+    const userApiKey =
+      req.headers.get("x-groq-api-key") ||
+      req.headers.get("x-grok-api-key") ||
+      body.apiKey;
+    const customModel =
+      req.headers.get("x-groq-model") ||
+      req.headers.get("x-grok-model") ||
+      body.model;
 
     // Strict schema parse
     const parseResult = analyticsAnalyzeSchema.safeParse(body);
@@ -27,8 +33,8 @@ export async function POST(req: NextRequest) {
 
     const payload = parseResult.data;
 
-    // Execute Grok analysis (live xAI or high-fidelity deterministic simulator)
-    const diagnosis = await analyzePerformanceWithGrok({
+    // Execute Groq LPU analysis (live Groq API or high-fidelity deterministic simulator)
+    const diagnosis = await analyzePerformanceWithGroq({
       postId: payload.postId,
       title: payload.title,
       platform: payload.platform,

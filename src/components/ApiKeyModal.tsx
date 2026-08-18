@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Key, Shield, Sparkles, Check, AlertCircle, Cpu } from "lucide-react";
+import { X, Key, Check, Zap, ExternalLink, Cpu } from "lucide-react";
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -18,15 +18,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   onSaveApiKey,
   currentModel,
 }) => {
-  const [tempKey, setTempKey] = useState(apiKey);
-  const [tempModel, setTempModel] = useState(currentModel);
+  const [inputKey, setInputKey] = useState(apiKey);
+  const [selectedModel, setSelectedModel] = useState(currentModel || "llama-3.3-70b-versatile");
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSaveApiKey(tempKey.trim(), tempModel);
+  const handleSave = () => {
+    onSaveApiKey(inputKey.trim(), selectedModel);
     setSavedSuccess(true);
     setTimeout(() => {
       setSavedSuccess(false);
@@ -35,141 +34,129 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   };
 
   const handleClear = () => {
-    setTempKey("");
-    onSaveApiKey("", tempModel);
+    setInputKey("");
+    onSaveApiKey("", "llama-3.3-70b-versatile");
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-indigo-950/50">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        {/* Modal Header */}
-        <div className="flex items-center space-x-3 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-950/60 text-indigo-400">
-            <Cpu className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-semibold text-white">
-              Grok (xAI) Engine Configuration
-            </h2>
-            <p className="text-xs text-slate-400">
-              Configure live xAI API access or utilize the built-in deterministic simulator.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSave} className="space-y-4 pt-2">
-          {/* Notice banner */}
-          <div className="rounded-xl border border-indigo-500/20 bg-indigo-950/30 p-3 text-xs text-indigo-200 flex items-start space-x-2">
-            <Sparkles className="h-4 w-4 text-indigo-400 mt-0.5 flex-shrink-0" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#0c0c0f] p-6 shadow-[0_0_50px_-12px_rgba(0,0,0,0.9)] text-slate-100">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
+          <div className="flex items-center space-x-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.1] bg-white/[0.04]">
+              <Cpu className="h-4 w-4 text-white" />
+            </div>
             <div>
-              <p className="font-medium text-indigo-300">Live xAI API / Free Simulation</p>
-              <p className="text-[11px] text-slate-300 mt-0.5">
-                If you provide your xAI key from <a href="https://console.x.ai" target="_blank" rel="noreferrer" className="underline text-indigo-400 hover:text-indigo-300">console.x.ai</a>, live Grok LLM inference is triggered. If left blank, the app operates flawlessly using high-fidelity deterministic heuristics.
+              <h3 className="text-sm font-semibold text-white tracking-tight">
+                Groq LPU Engine Configuration
+              </h3>
+              <p className="text-[11px] text-neutral-400 font-mono">
+                Ultra-fast inference (LPU)
               </p>
             </div>
           </div>
 
-          {/* Model Selection */}
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Grok Model Architecture
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setTempModel("grok-2-latest")}
-                className={`rounded-xl border p-3 text-left transition-all ${
-                  tempModel === "grok-2-latest"
-                    ? "border-indigo-500 bg-indigo-950/40 text-white ring-1 ring-indigo-500"
-                    : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-300"
-                }`}
-              >
-                <div className="text-xs font-semibold">grok-2-latest</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Flagship reasoning engine</div>
-              </button>
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-              <button
-                type="button"
-                onClick={() => setTempModel("grok-beta")}
-                className={`rounded-xl border p-3 text-left transition-all ${
-                  tempModel === "grok-beta"
-                    ? "border-indigo-500 bg-indigo-950/40 text-white ring-1 ring-indigo-500"
-                    : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-300"
-                }`}
+        {/* Body */}
+        <div className="space-y-4 pt-4">
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5 text-xs text-neutral-300">
+            <div className="flex items-center justify-between font-medium text-white mb-1">
+              <span>Groq Cloud API Key</span>
+              <a
+                href="https://console.groq.com/keys"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center space-x-1 text-[11px] text-neutral-400 hover:text-white transition-colors"
               >
-                <div className="text-xs font-semibold">grok-beta</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">High-speed inference</div>
-              </button>
+                <span>Get Free Key</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
-          </div>
-
-          {/* API Key Input */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-xs font-medium text-slate-300">
-                xAI API Key (Optional)
-              </label>
-              {tempKey && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="text-[10px] text-rose-400 hover:underline"
-                >
-                  Clear Key
-                </button>
-              )}
-            </div>
-            <div className="relative">
-              <input
-                type="password"
-                value={tempKey}
-                onChange={(e) => setTempKey(e.target.value)}
-                placeholder="xai-..."
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
-              />
-              <Key className="absolute right-3 top-3 h-4 w-4 text-slate-500 pointer-events-none" />
-            </div>
-            <p className="mt-1 text-[10px] text-slate-500">
-              Keys are stored securely in browser session storage and transmitted directly via server headers.
+            <p className="text-[11px] text-neutral-400 leading-relaxed">
+              If left blank, Osynth runs with zero latency using the built-in deterministic AI performance simulator.
             </p>
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+          <div>
+            <label className="block text-[11px] font-mono text-neutral-400 uppercase tracking-wider mb-1.5">
+              Groq API Key (gsk_...)
+            </label>
+            <div className="relative">
+              <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-500" />
+              <input
+                type="password"
+                value={inputKey}
+                onChange={(e) => setInputKey(e.target.value)}
+                placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxx"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-neutral-600 focus:border-white/[0.25] focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-mono text-neutral-400 uppercase tracking-wider mb-1.5">
+              Inference Model
+            </label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="w-full rounded-xl border border-white/[0.08] bg-[#111115] px-3 py-2 text-xs font-mono text-white focus:border-white/[0.25] focus:outline-none transition-colors cursor-pointer"
+            >
+              <option value="llama-3.3-70b-versatile">
+                Llama 3.3 70B Versatile (Recommended • Highest Quality)
+              </option>
+              <option value="llama-3.1-8b-instant">
+                Llama 3.1 8B Instant (Sub-100ms Ultra-Fast)
+              </option>
+              <option value="mixtral-8x7b-32768">
+                Mixtral 8x7B 32k (High Context Window)
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+          <button
+            onClick={handleClear}
+            className="text-[11px] font-mono text-neutral-400 hover:text-rose-400 transition-colors"
+          >
+            Clear Key (Use Simulator)
+          </button>
+
+          <div className="flex items-center space-x-2">
             <button
-              type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800"
+              className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-neutral-300 hover:bg-white/[0.08] hover:text-white transition-colors"
             >
               Cancel
             </button>
-
             <button
-              type="submit"
-              className="flex items-center space-x-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition-all"
+              onClick={handleSave}
+              className="inline-flex items-center space-x-1.5 rounded-lg bg-white px-4 py-1.5 text-xs font-medium text-black hover:bg-neutral-200 active:scale-[0.98] transition-all"
             >
               {savedSuccess ? (
                 <>
-                  <Check className="h-3.5 w-3.5 text-emerald-300" />
-                  <span>Saved!</span>
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>Saved</span>
                 </>
               ) : (
                 <>
-                  <Shield className="h-3.5 w-3.5" />
-                  <span>Save Configuration</span>
+                  <Zap className="h-3.5 w-3.5 fill-black" />
+                  <span>Save Engine</span>
                 </>
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

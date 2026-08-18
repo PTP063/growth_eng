@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { RetentionDataPoint } from "@/types/analytics";
-import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
 interface RetentionChartProps {
   data: RetentionDataPoint[];
@@ -16,8 +15,8 @@ export const RetentionChart: React.FC<RetentionChartProps> = ({
   const [hoveredPoint, setHoveredPoint] = useState<RetentionDataPoint | null>(null);
 
   const width = 680;
-  const height = 220;
-  const padding = { top: 20, right: 30, bottom: 35, left: 45 };
+  const height = 200;
+  const padding = { top: 20, right: 25, bottom: 30, left: 40 };
 
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -32,9 +31,28 @@ export const RetentionChart: React.FC<RetentionChartProps> = ({
     return padding.top + chartHeight - (rate / 100) * chartHeight;
   };
 
-  // Build SVG path for retention curve
-  const points = data.map((d) => `${getX(d.second)},${getY(d.retentionRate)}`);
-  const pathD = `M ${points.join(" L ")}`;
+  // Build smooth cubic bezier curve
+  const formatBezier = (pts: { x: number; y: number }[]) => {
+    if (pts.length < 2) return "";
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? 0 : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] || p2;
+
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  };
+
+  const points = data.map((d) => ({ x: getX(d.second), y: getY(d.retentionRate) }));
+  const pathD = formatBezier(points);
 
   // Area under the curve
   const areaD = `${pathD} L ${getX(data[data.length - 1].second)},${getY(0)} L ${getX(data[0].second)},${getY(0)} Z`;
@@ -47,35 +65,35 @@ export const RetentionChart: React.FC<RetentionChartProps> = ({
   const yBenchmark = getY(60);
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+    <div className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-4.5 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div>
           <div className="flex items-center space-x-2">
-            <h3 className="text-sm font-semibold text-white">
-              Second-by-Second Viewer Retention Curve
+            <h3 className="text-xs font-semibold text-white tracking-tight">
+              Viewer Retention Trajectory (0.0s – {maxSecond}s)
             </h3>
-            <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-slate-300">
-              0.0s – {maxSecond}s
+            <span className="rounded border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 text-[9px] font-mono text-neutral-400">
+              100ms Granularity
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Real-time drop-off trajectory vs. 60% Viral FYP Threshold
+          <p className="text-[11px] text-neutral-500 font-sans mt-0.5">
+            Second-by-second drop-off curve vs. 60.0% FYP algorithm benchmark
           </p>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center space-x-4 text-[11px]">
+        <div className="flex items-center space-x-3 text-[10px] font-mono text-neutral-400">
           <div className="flex items-center space-x-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
-            <span className="text-slate-300">Actual Retention</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
+            <span className="text-neutral-300">Retention</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="h-0.5 w-3 bg-emerald-400 border-b border-dashed border-emerald-400"></span>
-            <span className="text-emerald-400">60% Viral Threshold</span>
+            <span className="h-0.5 w-2.5 bg-emerald-400 border-b border-dashed border-emerald-400"></span>
+            <span className="text-emerald-400">60% Benchmark</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="h-2 w-2 rounded-full bg-rose-500"></span>
-            <span className="text-rose-400">Drop-off Spike</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+            <span className="text-rose-400">3s Inflection</span>
           </div>
         </div>
       </div>
@@ -87,204 +105,199 @@ export const RetentionChart: React.FC<RetentionChartProps> = ({
           className="w-full h-auto overflow-visible select-none"
         >
           <defs>
-            <linearGradient id="retentionGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
-            </linearGradient>
-
-            <linearGradient id="criticalDropGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+            <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
           {/* Grid lines */}
-          {[100, 75, 50, 25, 0].map((rate) => {
-            const y = getY(rate);
-            return (
-              <g key={rate}>
-                <line
-                  x1={padding.left}
-                  y1={y}
-                  x2={width - padding.right}
-                  y2={y}
-                  stroke="#1e293b"
-                  strokeDasharray="3 3"
-                />
-                <text
-                  x={padding.left - 8}
-                  y={y + 3}
-                  textAnchor="end"
-                  fontSize="10"
-                  fill="#64748b"
-                  className="font-mono"
-                >
-                  {rate}%
-                </text>
-              </g>
-            );
-          })}
+          {[0, 25, 50, 75, 100].map((rate) => (
+            <g key={rate}>
+              <line
+                x1={padding.left}
+                y1={getY(rate)}
+                x2={width - padding.right}
+                y2={getY(rate)}
+                stroke="rgba(255, 255, 255, 0.04)"
+                strokeDasharray="2,4"
+              />
+              <text
+                x={padding.left - 8}
+                y={getY(rate) + 3}
+                fill="#52525b"
+                fontSize="9"
+                fontFamily="ui-monospace, monospace"
+                textAnchor="end"
+              >
+                {rate}%
+              </text>
+            </g>
+          ))}
 
           {/* X Axis Time Labels */}
-          {[0, 3, 5, 8, 12, 16, 20].filter((s) => s <= maxSecond).map((second) => {
-            const x = getX(second);
-            return (
-              <g key={second}>
-                <line
-                  x1={x}
-                  y1={padding.top}
-                  x2={x}
-                  y2={height - padding.bottom}
-                  stroke={second === 3 ? "rgba(244, 63, 94, 0.3)" : "#1e293b"}
-                  strokeDasharray={second === 3 ? "2 2" : "3 3"}
-                />
-                <text
-                  x={x}
-                  y={height - padding.bottom + 16}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill={second === 3 ? "#f43f5e" : "#64748b"}
-                  fontWeight={second === 3 ? "bold" : "normal"}
-                  className="font-mono"
-                >
-                  {second}s
-                </text>
-              </g>
-            );
-          })}
+          {[0, 3, 5, 10, 15, 20].map((sec) => (
+            <g key={sec}>
+              <line
+                x1={getX(sec)}
+                y1={padding.top}
+                x2={getX(sec)}
+                y2={height - padding.bottom}
+                stroke={sec === 3 ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.03)"}
+                strokeDasharray={sec === 3 ? "3,3" : "2,4"}
+              />
+              <text
+                x={getX(sec)}
+                y={height - padding.bottom + 14}
+                fill={sec === 3 ? "#ffffff" : "#52525b"}
+                fontSize="9"
+                fontFamily="ui-monospace, monospace"
+                textAnchor="middle"
+                fontWeight={sec === 3 ? "600" : "400"}
+              >
+                {sec}s
+              </text>
+            </g>
+          ))}
 
-          {/* Viral Benchmark 60% line */}
+          {/* 60% Viral FYP Threshold Line */}
           <line
             x1={padding.left}
             y1={yBenchmark}
             x2={width - padding.right}
             y2={yBenchmark}
             stroke="#10b981"
-            strokeWidth="1.5"
-            strokeDasharray="4 4"
+            strokeWidth="1.2"
+            strokeDasharray="4,4"
+            opacity="0.8"
           />
           <text
-            x={width - padding.right + 4}
-            y={yBenchmark + 3}
-            fontSize="9"
+            x={width - padding.right - 4}
+            y={yBenchmark - 4}
             fill="#10b981"
-            className="font-mono"
+            fontSize="8.5"
+            fontFamily="ui-monospace, monospace"
+            textAnchor="end"
+            fontWeight="600"
           >
-            60%
+            60% VIRAL THRESHOLD
           </text>
 
-          {/* Filled Area */}
-          <path d={areaD} fill="url(#retentionGradient)" />
+          {/* Retention Area Gradient */}
+          <path d={areaD} fill="url(#curveGradient)" />
 
-          {/* Retention Line */}
+          {/* Retention Bezier Curve Stroke */}
           <path
             d={pathD}
             fill="none"
-            stroke="#6366f1"
-            strokeWidth="3"
+            stroke="#ffffff"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {/* 3-Second Critical Zone Marker */}
-          <rect
-            x={getX(0)}
-            y={padding.top}
-            width={getX(3) - getX(0)}
-            height={chartHeight}
-            fill="url(#criticalDropGradient)"
+          {/* 3s Drop-Off Vertical Marker */}
+          <line
+            x1={x3s}
+            y1={padding.top}
+            x2={x3s}
+            y2={height - padding.bottom}
+            stroke="#f43f5e"
+            strokeWidth="1.2"
+            strokeDasharray="3,3"
+            opacity="0.9"
           />
 
-          {/* 3s Key Highlight Dot */}
+          {/* 3.0s Inflection Point Marker */}
           <circle
             cx={x3s}
             cy={y3s}
-            r="6"
+            r="4"
             fill="#f43f5e"
-            stroke="#020617"
-            strokeWidth="2"
-            className="animate-pulse"
+            stroke="#ffffff"
+            strokeWidth="1.5"
           />
 
-          {/* Retention Data Points & Dropoff Badges */}
-          {data.map((point, index) => {
-            const cx = getX(point.second);
-            const cy = getY(point.retentionRate);
-            const isCritical = point.isDropoffSpike;
+          {/* 3.0s Label Tooltip in SVG */}
+          <g transform={`translate(${x3s + 6}, ${Math.max(padding.top + 15, y3s - 10)})`}>
+            <rect
+              x="0"
+              y="-12"
+              width="62"
+              height="18"
+              rx="4"
+              fill="#09090b"
+              stroke="rgba(244, 63, 94, 0.4)"
+              strokeWidth="1"
+            />
+            <text
+              x="5"
+              y="0"
+              fill="#f43f5e"
+              fontSize="9"
+              fontFamily="ui-monospace, monospace"
+              fontWeight="600"
+            >
+              3.0s: {retention3s}%
+            </text>
+          </g>
 
+          {/* Interactive Hover Point Indicator */}
+          {hoveredPoint && (
+            <g>
+              <line
+                x1={getX(hoveredPoint.second)}
+                y1={padding.top}
+                x2={getX(hoveredPoint.second)}
+                y2={height - padding.bottom}
+                stroke="#a1a1aa"
+                strokeWidth="1"
+                strokeDasharray="2,2"
+              />
+              <circle
+                cx={getX(hoveredPoint.second)}
+                cy={getY(hoveredPoint.retentionRate)}
+                r="3.5"
+                fill="#ffffff"
+                stroke="#09090b"
+                strokeWidth="1.5"
+              />
+            </g>
+          )}
+
+          {/* Transparent Hover Rectangles */}
+          {data.map((d, i) => {
+            const x = getX(d.second) - 8;
             return (
-              <g
-                key={index}
-                className="cursor-pointer"
-                onMouseEnter={() => setHoveredPoint(point)}
+              <rect
+                key={i}
+                x={x}
+                y={padding.top}
+                width="16"
+                height={chartHeight}
+                fill="transparent"
+                className="cursor-crosshair"
+                onMouseEnter={() => setHoveredPoint(d)}
                 onMouseLeave={() => setHoveredPoint(null)}
-              >
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={isCritical ? "5" : "4"}
-                  fill={isCritical ? "#f43f5e" : "#818cf8"}
-                  stroke="#0f172a"
-                  strokeWidth="2"
-                />
-              </g>
+              />
             );
           })}
         </svg>
-
-        {/* Hover Tooltip display */}
-        {hoveredPoint && (
-          <div
-            className="pointer-events-none absolute z-20 rounded-lg border border-slate-700 bg-slate-950/90 px-3 py-1.5 text-xs text-white shadow-xl backdrop-blur-md"
-            style={{
-              left: `${Math.min(getX(hoveredPoint.second) / width * 100, 80)}%`,
-              top: `${Math.max(10, getY(hoveredPoint.retentionRate) / height * 100 - 20)}%`,
-            }}
-          >
-            <div className="font-semibold text-indigo-300">
-              Second {hoveredPoint.second}.0s
-            </div>
-            <div className="text-[11px] text-slate-300">
-              Retention: <span className="font-mono text-white">{hoveredPoint.retentionRate}%</span>
-            </div>
-            {hoveredPoint.note && (
-              <div className="mt-1 max-w-[200px] text-[10px] text-rose-300 border-t border-slate-800 pt-1">
-                {hoveredPoint.note}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* 3s Drop-off Insights Bar */}
-      <div className="mt-3 flex flex-wrap items-center justify-between rounded-xl border border-slate-800/80 bg-slate-950/50 p-3 text-xs">
-        <div className="flex items-center space-x-2.5">
-          {retention3s < 45 ? (
-            <AlertTriangle className="h-4 w-4 text-rose-400 flex-shrink-0" />
-          ) : (
-            <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-          )}
-          <div>
-            <span className="font-medium text-slate-200">
-              3-Second Retention Verdict:{" "}
-            </span>
-            <span
-              className={`font-bold ${
-                retention3s < 45
-                  ? "text-rose-400"
-                  : retention3s < 60
-                  ? "text-amber-400"
-                  : "text-emerald-400"
-              }`}
-            >
-              {retention3s}% ({retention3s < 45 ? "Sub-Optimal" : retention3s < 60 ? "Average" : "High Velocity"})
-            </span>
-          </div>
+      {/* Footer Info */}
+      <div className="mt-2 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[10px] font-mono text-neutral-500">
+        <div>
+          Inflection point at <span className="text-rose-400 font-semibold">t=3.0s</span> indicates high initial drop-off.
         </div>
-
-        <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
-          <Info className="h-3.5 w-3.5 text-slate-500" />
-          <span>FYP algorithmic distribution accelerates when 3s retention exceeds 60%.</span>
+        <div>
+          {hoveredPoint ? (
+            <span>
+              t={hoveredPoint.second}s: <strong className="text-white">{hoveredPoint.retentionRate}%</strong>
+            </span>
+          ) : (
+            <span>Hover chart for exact second telemetry</span>
+          )}
         </div>
       </div>
     </div>

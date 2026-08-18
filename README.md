@@ -8,11 +8,11 @@
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2.35-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Grok xAI](https://img.shields.io/badge/AI_Engine-Grok--2_xAI-4F46E5?style=for-the-badge&logo=openai&logoColor=white)](https://x.ai/)
+[![Groq LPU](https://img.shields.io/badge/AI_Engine-Groq_LPU_(Llama_3.3_70B)-F05A28?style=for-the-badge&logo=fastapi&logoColor=white)](https://groq.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <b>Osynth Growth Engine</b> turns short-form video analytics into compounding viral growth. It analyzes viewer drop-offs, generates high-converting opening hooks using <b>xAI Grok-2</b>, and publishes across TikTok, Instagram Reels, and YouTube Shorts with 1 click.
+  <b>Osynth Growth Engine</b> turns short-form video analytics into compounding viral growth. It analyzes viewer drop-offs, generates high-converting opening hooks using ultra-fast <b>Groq LPU inference</b> (Llama 3.3 70B), and publishes across TikTok, Instagram Reels, and YouTube Shorts with 1 click.
 </p>
 
 [✨ Live Production App](https://growthengine-three.vercel.app) • [🚀 Deploy on Vercel](#-deployment-to-vercel) • [🛡️ Engineering Defense Doc](./OSYNTH_ENGINEERING_DEFENSE.md) • [📊 How It Works](#-how-it-works-in-3-simple-steps)
@@ -25,13 +25,13 @@
 
 ```mermaid
 flowchart LR
-    A["📊 1. Detect Drop-offs\nTrack 3s viewer retention"] --> B["🧠 2. Grok AI Diagnosis\nFind root cause & write 3 hooks"]
+    A["📊 1. Detect Drop-offs\nTrack 3s viewer retention"] --> B["🧠 2. Groq AI Diagnosis\nFind root cause & write 3 hooks"]
     B --> C["⚡ 3. 1-Click Apply\nSync viral hook & voice pacing"]
     C --> D["🚀 4. Multi-Channel Publish\nTikTok • Instagram • YouTube"]
 
-    classDef step fill:#141A2B,stroke:#6366f1,stroke-width:2px,color:#fff;
-    classDef highlight fill:#1e1b4b,stroke:#a855f7,stroke-width:2px,color:#fff;
-    classDef success fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef step fill:#111114,stroke:#3f3f46,stroke-width:1.5px,color:#fff;
+    classDef highlight fill:#18181b,stroke:#a1a1aa,stroke-width:1.5px,color:#fff;
+    classDef success fill:#09090b,stroke:#10b981,stroke-width:1.5px,color:#fff;
 
     class A,B step;
     class C highlight;
@@ -41,7 +41,7 @@ flowchart LR
 | Step | What Happens | The Benefit |
 | :--- | :--- | :--- |
 | **01. Audit** | Analyzes second-by-second drop-off curve against the 60% viral benchmark | Pinpoints the exact second viewers lose interest |
-| **02. Fix Hook** | Grok-2 writes 3 pattern-interrupt opening hooks (*Curiosity Gap*, *Contrarian*, *Problem*) | Replaces weak intros with high-converting hooks |
+| **02. Fix Hook** | Groq LPU writes 3 pattern-interrupt opening hooks (*Curiosity Gap*, *Contrarian*, *Problem*) in ~250ms | Replaces weak intros with high-converting hooks |
 | **03. Publish** | 1-Click transfers new hook & pacing to multi-channel scheduler | Instantly stages for TikTok, Instagram Reels & YouTube Shorts |
 
 ---
@@ -56,7 +56,7 @@ flowchart LR
 
 ### 2. 📅 Multi-Channel Content Scheduler
 - **Voice Cadence Studio:** Adjust speech speed from 100 to 240 WPM with real-time audio wave feedback.
-- **Live 9:16 Mobile Mockup:** Simulated phone preview rendering kinetic subtitles and channel watermarks.
+- **Live 9:16 Mobile Mockup:** Authentic phone bezel rendering kinetic subtitles, TikTok UI overlay, and channel watermarks.
 - **Multi-Platform Staging:** Simultaneous scheduling for **TikTok**, **Instagram Reels**, and **YouTube Shorts**.
 
 ### 3. ⚙️ Live Pipeline Execution Monitor
@@ -67,7 +67,7 @@ flowchart LR
 
 ## ⚡ API Endpoints (Quick Reference)
 
-- **`POST /api/analytics/next-best-action`**: Pass post stats $\rightarrow$ Returns Grok diagnosis, 3 hooks, and persona adjustments.
+- **`POST /api/analytics/next-best-action`**: Pass post stats $\rightarrow$ Returns Groq diagnosis, 3 hooks, and persona adjustments.
 - **`POST /api/schedule/validate`**: Pass video script & platforms $\rightarrow$ Validates constraints and generates deterministic job ID.
 
 ---
@@ -87,7 +87,7 @@ npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)**.
 
-*(Optional: Add `XAI_API_KEY` in `.env.local` to use live xAI keys, or use the built-in deterministic simulator without any keys!)*
+*(Optional: Add `GROQ_API_KEY` from [https://console.groq.com/keys](https://console.groq.com/keys) in `.env.local` for live LPU inference, or use the built-in deterministic simulator without any keys!)*
 
 ---
 
